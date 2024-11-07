@@ -12,7 +12,7 @@
                     <setting id="sales_discount_conifg" help="Activate discount for sales order line items">
                         <field name="activate_sales_discount"/>
                     </setting>
-                    <setting id="sales_discount_conifg" help="The way you want to calculate sales order discount" invisible="not activate_sales_discount" >
+                    <setting id="sales_discount_conifg" help="The way you want to calculate sales order discount">
                         <field name="sales_discount_method" class="o_light_label" widget="radio"/>
                     </setting>
                 </block>
