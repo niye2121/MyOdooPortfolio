@@ -8,16 +8,11 @@ class SaleOrder(models.Model):
         string="Discount Amount",
         help="Total fixed discount to be applied on the sales order."
     )
-    amount_total = fields.Monetary(
-        string="Total",
-        compute="_compute_amounts",
-        store=True,
-        help="Total amount after applying discount."
-    )
+    
 
     @api.depends('order_line.price_subtotal', 'order_line.price_tax', 'order_line.price_total', 'order_line.discount')
     def _compute_amounts(self):
-        super()._compute_amounts()
+        super(SaleOrder, self)._compute_amounts()
         # Check if sales discount is activated
         activate_discount = self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.activate_sales_discount')
         discount_method = self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.sales_discount_method')
