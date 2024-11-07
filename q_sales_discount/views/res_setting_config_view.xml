@@ -9,8 +9,8 @@
 		<field name="arch" type="xml">
             <xpath expr="//block[@id='connectors_setting_container']" position="after">
                 <block title="Sales Discount" id="sales_discount_setting_container">
-                    <setting id="sales_discount_conifg" help="Activate discount for sales order">
-                        <field name="activate_sales_discount" widget="upgrade_boolean"/>
+                    <setting id="sales_discount_conifg" help="Activate discount for sales order line items">
+                        <field name="activate_sales_discount" widget="boolean"/>
                     </setting>
                     <setting id="sales_discount_conifg" help="The way you want to calculate sales order discount">
                         <field name="sales_discount_method" class="o_light_label" widget="radio"/>
