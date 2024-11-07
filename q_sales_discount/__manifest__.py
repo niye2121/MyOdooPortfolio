@@ -1,35 +1,18 @@
-# -*- coding: utf-8 -*-
 {
-    'name': "my_module",
-
-    'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
-
+    'name': 'Sales Order Line Item Discount',
+    'version': '1.0',
+    'category': 'Sales',
+    'summary': 'Applies discounts on line items in sales orders by distributing a specified discount amount across the total order.',
     'description': """
-        Long description of module's purpose
+        This module allows you to apply a specified discount amount on sales orders, distributing it evenly across all line items. It calculates and updates each line item’s discount based on its contribution to the total order amount.
     """,
-
-    'author': "My Company",
-    'website': "http://www.yourcompany.com",
-
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
-
-    # any module necessary for this one to work correctly
-    'depends': ['base'],
-
-    # always loaded
+    'author': 'Nigist(Queen)',
+    'website': 'https://github.com/yourusername/odoo-portfolio',
+    'depends': ['sale'],
     'data': [
-        # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+        'views/sale_order_view.xml',
     ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
-    ],
+    'installable': True,
+    'application': False,
+    'license': 'MIT',
 }
