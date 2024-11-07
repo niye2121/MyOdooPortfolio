@@ -1,66 +1,39 @@
 from odoo import api, fields, models
 
 
-class ResConfigSettings(models.TransientModel):
-    _inherit = 'res.config.settings'
-
-    activate_sales_discount = fields.Boolean("Activate Sales Discount")
-    sales_discount_method = fields.Selection(
-        [('fixed', 'Fixed'), ('percentage', 'Percentage')],
-        default='percentage',
-        string="Sales Discount Method"
-    )
-
-    @api.model
-    def get_values(self):
-        res = super(ResConfigSettings, self).get_values()
-        res.update({
-            'activate_sales_discount': self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.activate_sales_discount'),
-            'sales_discount_method': self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.sales_discount_method'),
-        })
-        return res
-
-    def set_values(self):
-        super(ResConfigSettings, self).set_values()
-        param = self.env['ir.config_parameter'].sudo()
-        param.set_param('q_sales_discount.activate_sales_discount', self.activate_sales_discount)
-        param.set_param('q_sales_discount.sales_discount_method', self.sales_discount_method)
-
-
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    discount_amount = fields.Float(string="Discount Amount", help="Total discount to be applied on the sales order.")
+    discount_amount = fields.Float(
+        string="Discount Amount",
+        help="Total fixed discount to be applied on the sales order."
+    )
+    amount_total = fields.Monetary(
+        string="Total",
+        compute="_compute_amounts",
+        store=True,
+        help="Total amount after applying discount."
+    )
 
     @api.depends('order_line.price_subtotal', 'order_line.price_tax', 'order_line.price_total', 'order_line.discount')
     def _compute_amounts(self):
+        super()._compute_amounts()
         # Check if sales discount is activated
         activate_discount = self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.activate_sales_discount')
         discount_method = self.env['ir.config_parameter'].sudo().get_param('q_sales_discount.sales_discount_method')
 
-        # Only apply discounts if the setting is activated
-        if activate_discount:
-            super(SaleOrder, self)._compute_amounts()
-            if discount_method == 'fixed':
-                # Fixed discount: Apply evenly distributed fixed amount
-                total_order_amount = sum(line.price_subtotal for line in self.order_line)
-                discount_ratio = (self.discount_amount / total_order_amount) if total_order_amount else 0
-                for line in self.order_line:
-                    line_discount = line.price_subtotal * discount_ratio
-                    line.update({'discount': line_discount})
-            elif discount_method == 'percentage':
-                # Percentage discount: Apply based on line subtotal
-                for line in self.order_line:
-                    line_discount = line.price_subtotal * (self.discount_amount / 100)
-                    line.update({'discount': line_discount})
-
-            # Calculate total and update discount amount
-            self.amount_total = sum(line.price_total - line.discount for line in self.order_line)
-            self.discount_amount = sum(line.discount for line in self.order_line)
-        else:
-            # If not activated, compute as usual without discount
-            super(SaleOrder, self)._compute_amounts()
-
+        for order in self:
+            if activate_discount and discount_method == 'fixed':
+                # Apply the fixed discount amount directly to the total
+                order.amount_total = sum(line.price_total for line in order.order_line) - order.discount_amount
+            elif activate_discount and discount_method == 'percentage':
+                # Apply a percentage-based discount on each line
+                total_discount = sum(line.price_subtotal * (order.discount_amount / 100) for line in order.order_line)
+                order.amount_total = sum(line.price_total for line in order.order_line) - total_discount
+                order.discount_amount = total_discount
+            else:
+                # If discounts are not activated, calculate the total as usual
+                order.amount_total = sum(line.price_total for line in order.order_line)
 
 
 class SaleOrderLine(models.Model):
@@ -75,8 +48,8 @@ class SaleOrderLine(models.Model):
 
         for line in self:
             if discount_method == 'fixed':
-                # Fixed discount - directly subtract a fixed discount amount
+                # Apply a fixed discount amount directly to price_total
                 line.price_total = line.price_unit * line.product_uom_qty - line.discount
             elif discount_method == 'percentage':
-                # Percentage discount - subtract a percentage-based discount
+                # Apply a percentage-based discount
                 line.price_total = line.price_unit * line.product_uom_qty * (1 - line.discount / 100 if line.discount else 1)
