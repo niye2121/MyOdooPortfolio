@@ -1,46 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-	<record id="res_config_settings_view_form_purchase_discount" model="ir.ui.view">
-		<field name="name">res.config.settings.view.form.inherit.purchase.discount</field>
+	<record id="res_config_settings_view_form_discount" model="ir.ui.view">
+		<field name="name">res.config.settings.view.form.inherit.sales.discount</field>
 		<field name="model">res.config.settings</field>
 		<field name="priority" eval="25" />
-		<field name="inherit_id" ref="purchase.res_config_settings_view_form_purchase" />
+		<field name="inherit_id" ref="sale.res_config_settings_view_form" />
 		<field name="arch" type="xml">
-			<xpath expr="//div[@data-key='purchase']" position="inside">
-				<h2> Sales Discount Configuration </h2>
-				<div class="row mt16 o_settings_container" name="main_container">
-					<div class="col-12 col-lg-6 o_setting_box"
-						title="This activates a discount on a purchase order with varied possibilities based on the other smart discount options you've chosen.">
-						<div class="o_setting_left_pane">
-							<field name="activate_sales_discount" />
-						</div>
-						<div class="o_setting_right_pane">
-							<label for="activate_sales_discount" />
-							<div class="text-muted">
-								Activate discount for sales order
-							</div>
-						</div>
-					</div>
-					<div class="row " name="sales_discount_option"
-						attrs="{'invisible': [('activate_sales_discount', '=', False)]}">
-						<div class="col-6 col-lg-6 o_setting_box">
-							<div class="o_setting_left_pane"/>
-							<div class="o_setting_right_pane">
-                                <label for="discount_method"/>
-                                <div class="text-muted">
-                                    The way you want to calculate sales order discount
-                                </div>
-                                <div class="content-group">
-                                    <div class="mt16">
-                                        <field name="sales_discount_method" class="o_light_label" widget="radio"/>
-                                    </div>
-                                </div>
-                            </div>
-						</div>
-					</div>
-				</div>
-			</xpath>
+            <xpath expr="//block[@id='connectors_setting_container']" position="after">
+                <block title="Sales Discount" id="sales_discount_setting_container">
+                    <setting id="sales_discount_conifg" help="Activate discount for sales order">
+                        <field name="activate_sales_discount" widget="upgrade_boolean"/>
+                    </setting>
+                    <setting id="sales_discount_conifg" help="The way you want to calculate sales order discount">
+                        <field name="sales_discount_method" class="o_light_label" widget="radio"/>
+                    </setting>
+                </block>
+            </xpath>
 		</field>
 	</record>
 
