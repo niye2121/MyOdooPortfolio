@@ -50,5 +50,7 @@ class SaleOrderLine(models.Model):
                 elif discount_method == 'percentage':
                     discount_amount = line.price_unit * line.product_uom_qty * (1 - line.discount / 100)
                     _logger.info(f"discount_amount: {discount_amount}")
+                    print("discount_amount: ")
+                    print(discount_amount)
                     line.price_total = discount_amount
            
